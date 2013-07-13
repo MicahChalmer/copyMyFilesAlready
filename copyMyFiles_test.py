@@ -79,10 +79,43 @@ class CopyFilesTest(unittest.TestCase):
         with open(log2) as log_file:
             log_contents = log_file.read()
             self.assertRegexpMatches(log_contents,
-                                     re.compile(r"^Directory already exists: "+os.path.join(self.active_tempdir_path(),"normal_subdir"), re.M))
+                                     re.compile(r"^Directory already exists: "
+                                                +re.escape(os.path.join(self.active_tempdir_path(),"normal_subdir")), re.M))
             self.assertRegexpMatches(log_contents,
-                                     re.compile(r"^Copy "+os.path.join(self.active_fixture_path(), "normal_file")+" to "+
-                                                os.path.join(self.active_tempdir_path(), "normal_file"), re.M))
+                                     re.compile(r"^Copy "+re.escape(os.path.join(self.active_fixture_path(), "normal_file"))
+                                                +" to "+
+                                                re.escape(os.path.join(self.active_tempdir_path(), "normal_file")), re.M))
+
+    # Should copy the normal file again when it's smaller than the source
+    def test_dest_file_is_smaller(self):
+        copied_dir, log = self.call_copy_script('test1')
+        with open(os.path.join(self.active_tempdir_path(),'normal_file'), 'w') as nf:
+            nf.write("small\n")
+        copied_dir, log2 = self.call_copy_script('test1')
+        self.check_files_included()
+        with open(log2) as log_file:
+            log_contents = log_file.read()
+            self.assertRegexpMatches(log_contents,
+                                     re.compile(r"^Copy "+re.escape(os.path.join(self.active_fixture_path(), "normal_file"))
+                                                +" to "+
+                                                re.escape(os.path.join(self.active_tempdir_path(), "normal_file")), re.M))
+
+    # Should copy the normal file again when it's smaller than the source
+    def test_dest_file_is_bigger(self):
+        copied_dir, log = self.call_copy_script('test1')
+        nf_path = os.path.join(self.active_tempdir_path(),'normal_file')
+        big_contents = "this is bigger than the normal contents!  watch out!\n"
+        with open(nf_path, 'w') as nf:
+            nf.write(big_contents)
+        copied_dir, log2 = self.call_copy_script('test1')
+        self.check_file('another_normal_file')
+        with open(nf_path) as nfl: self.assertEqual(nfl.read(), big_contents)
+        with open(log2) as log_file:
+            log_contents = log_file.read()
+            self.assertRegexpMatches(log_contents,
+                                     re.compile(r"^HEY!  WTF\?  "+re.escape(os.path.join(self.active_tempdir_path(), "normal_file"))
+                                                +" is bigger than "+
+                                                re.escape(os.path.join(self.active_fixture_path(), "normal_file")), re.M))
 
 if __name__ == '__main__':
     unittest.main()
