@@ -63,13 +63,26 @@ class CopyFilesTest(unittest.TestCase):
 
         # Check that there are no extra files in the destination
         for curdir, subdirs, files in os.walk(self.active_tempdir_path()):
-            src_dir = curdir.replace(self.active_tempdir_path(), self.active_fixture_path())
+            src_dir = re.sub(r"^"+re.escape(self.active_tempdir_path()), self.active_fixture_path(), curdir)
             for fl in subdirs + files:
-                self.assertTrue(os.path.lexists(os.path.join(src_dir, fl)), "File in dest dir must exist in source")
+                self.assertTrue(os.path.lexists(os.path.join(src_dir, fl)), "File in dest dir must exist in source: "+os.path.join(curdir, fl) + " -> "+os.path.join(src_dir, fl))
 
     def test_simple_to_empty(self):
         copied_dir, log = self.call_copy_script('test1')
         self.check_files_included()
+
+    def test_some_files_exist(self):
+        copied_dir, log = self.call_copy_script('test1')
+        os.remove(os.path.join(self.active_tempdir_path(), 'normal_file'))
+        copied_dir, log2 = self.call_copy_script('test1')
+        self.check_files_included()
+        with open(log2) as log_file:
+            log_contents = log_file.read()
+            self.assertRegexpMatches(log_contents,
+                                     re.compile(r"^Directory already exists: "+os.path.join(self.active_tempdir_path(),"normal_subdir"), re.M))
+            self.assertRegexpMatches(log_contents,
+                                     re.compile(r"^Copy "+os.path.join(self.active_fixture_path(), "normal_file")+" to "+
+                                                os.path.join(self.active_tempdir_path(), "normal_file"), re.M))
 
 if __name__ == '__main__':
     unittest.main()
