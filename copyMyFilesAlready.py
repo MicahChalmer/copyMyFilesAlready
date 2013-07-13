@@ -30,12 +30,12 @@ for dir, subdirs, files in os.walk(root_from):
         dirstat = os.lstat(fulldir)
         newdir = fulldir.replace(root_from,root_to)
         # os.walk puts symlinks to directories in subdirs instead of files, even with followlinks set to False (the default).  Handle them by copying.
-        if stat.S_ISLNK(dirstat.st_mode):
+        if stat.S_ISLNK(dirstat.st_mode) and not os.path.lexists(newdir):
             copy_file(fulldir,newdir)
         else:
             try:
                 newdirstat = os.lstat(newdir)
-                if stat.S_ISLNK(newdirstat.st_mode):
+                if stat.S_ISLNK(newdirstat.st_mode) and not stat.S_ISLNK(dirstat.st_mode):
                     print "HEY!  WTF?  "+fulldir+" is a symlink, but "+newdir+" is not!"
                 print "Directory already exists: "+newdir
             except OSError:
