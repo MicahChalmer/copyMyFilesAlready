@@ -1,0 +1,4 @@
+root:x:0:0:root:/root:/bin/bash
+alice:x:1000:1000:Alice Liddel,,,:/home/alice:/bin/bash
+charlie:x:1001:1002:Charles Dodson,,,:/home/charlie:/bin/bash
+lewis:x:1003:1003:Lewis Carroll,,,:/home/lewis:/bin/bash

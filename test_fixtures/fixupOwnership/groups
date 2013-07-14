@@ -1,0 +1,4 @@
+alice:x:1000:
+charlie:x:1002:charlie
+staff:x:200:
+lewis:x:1003:lewis

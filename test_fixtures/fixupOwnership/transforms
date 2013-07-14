@@ -1,0 +1,7 @@
+#YAML
+user:
+  lewis: charlie
+  :unknown: alice
+
+group:
+  staff: :user
