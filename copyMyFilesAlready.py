@@ -24,9 +24,9 @@ print "Copy from "+root_from+" to "+root_to
 
 sys.stdout = os.fdopen(sys.stdout.fileno(),'w',0)
 
-for dir, subdirs, files in os.walk(root_from):
+for curdir, subdirs, files in os.walk(root_from):
     for sd in subdirs:
-        fulldir = os.path.join(dir,sd)
+        fulldir = os.path.join(curdir,sd)
         dirstat = os.lstat(fulldir)
         newdir = fulldir.replace(root_from,root_to)
         # os.walk puts symlinks to directories in subdirs instead of files, even with followlinks set to False (the default).  Handle them by copying.
@@ -43,7 +43,7 @@ for dir, subdirs, files in os.walk(root_from):
                 os.makedirs(newdir)
 
     for filename in files:
-        fullpath = os.path.join(dir,filename)
+        fullpath = os.path.join(curdir,filename)
         newpath = fullpath.replace(root_from,root_to)
         try:
             oldstat = os.lstat(fullpath)
