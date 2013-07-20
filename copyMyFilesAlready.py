@@ -40,7 +40,8 @@ for curdir, subdirs, files in os.walk(root_from):
                 print "Directory already exists: "+newdir
             except OSError:
                 print "Creating directory "+newdir
-                os.makedirs(newdir)
+                os.mkdir(newdir, dirstat.st_mode)
+                os.chown(newdir, dirstat.st_uid, dirstat.st_gid)
 
     for filename in files:
         fullpath = os.path.join(curdir,filename)

@@ -5,6 +5,7 @@ import yaml
 import pwd
 import grp
 import os
+import re
 
 def etc_file_to_map(path, id_idx, name_idx):
     result = {}
@@ -86,12 +87,12 @@ if __name__ == '__main__':
     unknown_users = set()
     unknown_groups = set()
     for curdir, subdirs, files in os.walk(args.dir):
-        paths_to_process = [os.path.join(curdir,x) for x in [curdir]+subdirs+files if x not in paths_mapped]
+        paths_to_process = [curdir]+[os.path.join(curdir,x) for x in subdirs+files if x not in paths_mapped]
         for path in paths_to_process:
             try:
                 stat_path = path
-                if self.ref_path:
-                    stat_path = stat_re.sub('^'+re.escape(args.dir), self.ref_path, path)
+                if ugm.ref_path:
+                    stat_path = re.sub('^'+re.escape(args.dir), ugm.ref_path, path)
                 stat = os.lstat(stat_path)
                 user, group = ugm.find_user_and_group(stat.st_uid, stat.st_gid)
                 uid = gid = None
@@ -113,7 +114,7 @@ if __name__ == '__main__':
                     raise UGMError("Unknown group {} for {} ({!r})".format(group, path, e))
 
                 # Take the stat again in case there is refpath
-                stat = os.lstat(stat_path)
+                stat = os.lstat(path)
                 if uid == stat.st_uid and gid == stat.st_gid:
                     print "No changes needed for "+path
                 elif args.execute:
