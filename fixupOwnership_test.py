@@ -27,5 +27,16 @@ class UserGroupMapperTest(unittest.TestCase):
     def test_transform_to_curr_user(self):
         self.assertEqual(self.ugm.find_user_and_group(9999, 200), ('alice', 'alice')) # Unknown is mapped to Alice, staff is mapped to user
 
+class XFormsOnlyTest(unittest.TestCase):
+    def setUp(self):
+        argp = UserGroupMapper.arg_parser()
+        args = argp.parse_args(['--transform-instrs', os.path.join(os.path.dirname(__file__),'test_fixtures/fixupOwnership/transforms2')])
+        self.ugm = UserGroupMapper.create(args)
+
+    def test_mappings(self):
+        self.assertEqual(self.ugm.find_user_and_group(1000, 1000), (1000, 1000))
+        self.assertEqual(self.ugm.find_user_and_group(1234, 678), (4321, 876)) # These are in the transforms file
+
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(
+)
