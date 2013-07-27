@@ -93,7 +93,11 @@ if __name__ == '__main__':
                 stat_path = path
                 if ugm.ref_path:
                     stat_path = re.sub('^'+re.escape(args.dir), ugm.ref_path, path)
-                stat = os.lstat(stat_path)
+                stat = None
+                try:
+                    stat = os.lstat(stat_path)
+                except OSError:
+                    stat = os.lstat(path)
                 user, group = ugm.find_user_and_group(stat.st_uid, stat.st_gid)
                 uid = gid = None
                 try:
